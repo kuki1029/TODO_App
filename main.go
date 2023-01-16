@@ -3,19 +3,19 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html"
+	//"github.com/joho/godotenv"
 
 	"TODO/controllers"
+	"TODO/database"
 )
-
-// "github.com/joho/godotenv"
 
 // This function will create all the needed routes for our different pages
 func setupRoutes(app *fiber.App) {
-	// Login page for user
-	app.Post("/signup", controller.Login)
+	// Signup page for user
+	app.Post("/signup", controller.Signup)
 	/*
-		// Signup page for user
-		app.Post("/signup", signupFunc)
+		// Login page for user
+		app.Post("/login", LoginFunc)
 
 		// Logout
 		app.Post("/logout", logoutFunc)
@@ -25,8 +25,9 @@ func setupRoutes(app *fiber.App) {
 }
 
 func main() {
+	// Setup the database
+	database.ConnectToDB()
 	// Create a new engine
-
 	engine := html.New("./views", ".html")
 
 	// Pass the engine to the Views
