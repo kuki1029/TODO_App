@@ -12,16 +12,16 @@ import (
 // This function will create all the needed routes for our different pages
 func setupRoutes(app *fiber.App) {
 	// Login page for user
-	app.Post("/login", controller.Login)
+	app.Post("/signup", controller.Login)
+	/*
+		// Signup page for user
+		app.Post("/signup", signupFunc)
 
-	// Signup page for user
-	app.Post("/signup", signupFunc)
+		// Logout
+		app.Post("/logout", logoutFunc)
 
-	// Logout
-	app.Post("/logout", logoutFunc)
-
-	// Show tasks to user
-	app.Get("/tasks", tasksFunc)
+		// Show tasks to user
+		app.Get("/tasks", tasksFunc) */
 }
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		// Render index
-		return c.Render("login", fiber.Map{
+		return c.Render("signup", fiber.Map{
 			"Title": "Hello, World!",
 		})
 	})

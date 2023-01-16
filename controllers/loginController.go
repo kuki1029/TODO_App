@@ -6,8 +6,7 @@ import (
 
 func Login(c *fiber.Ctx) error {
 
-	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
-		"Message": "Login Successful",
 	})
 }
