@@ -43,7 +43,6 @@ function signupButton() {
         if (result.success) {
           // If everything was okay, we redirect the user to the tasks page so
           // that they can view their tasks
-          document.write("HI")
           window.location.href = "/tasks";
         }
         else {
