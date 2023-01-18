@@ -1,12 +1,15 @@
 package database
 
 import (
+	"errors"
 	"fmt"
-	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"TODO/models"
 )
@@ -28,7 +31,6 @@ func ConnectToDB() {
 		os.Getenv("PSQL_USER"), os.Getenv("PSQL_PASS"),
 		os.Getenv("PSQL_DBNAME"), os.Getenv("PSQL_PORT"))
 	// Here we open the actual connection
-
 	DB, err = gorm.Open(postgres.Open(loginDB), &gorm.Config{})
 	// Now we check for errors to be sure everything is okay
 	if err != nil {
@@ -36,5 +38,32 @@ func ConnectToDB() {
 	} else {
 		DB.AutoMigrate(models.User{})
 	}
-	fmt.Println(loginDB)
+}
+
+// This function will add the user credentials to the database
+// The password will be hashed for security reasons
+func AddUser(userInfo models.User) error {
+	// Get the pointer for the model
+	creds := &userInfo
+	// First we check for any errors. If there are no errors when retrieving the user
+	// from the database, it means that there exists an entry with that email already.
+	// To prevent duplicate entries, we check for this and return the error
+	err := DB.Take(creds).Error
+	if err == nil {
+		return errors.New("There is already an account with this email. Please login instead.")
+	}
+	// As the email does not exist in the database, we first hash it before adding it
+	// The 8 represents the cost of hashing. 8 is chosen arbitrarily
+	// We also salt the password for extra security
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(userInfo.Password), 8)
+	if err == nil {
+		// If no errors, we can add the user info to the database
+		userInfo.Password = string(hashedPass)
+		err := DB.Create(creds)
+		if err == nil {
+			return nil
+		}
+		return err.Error
+	}
+	return err
 }
