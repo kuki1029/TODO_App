@@ -46,7 +46,7 @@ function signupButton() {
           window.location.href = "/tasks";
         }
         else {
-          window.alert("Error with signing up. Please try again.")
+          window.alert(result.message)
         }
       })
   }

@@ -44,25 +44,26 @@ func ConnectToDB() {
 // The password will be hashed for security reasons
 func AddUser(userInfo models.User) error {
 	// Get the pointer for the model
-	creds := &userInfo
+	//creds := &userInfo
 	// First we check for any errors. If there are no errors when retrieving the user
 	// from the database, it means that there exists an entry with that email already.
 	// To prevent duplicate entries, we check for this and return the error
-	err := DB.Take(creds).Error
+	var tempUser models.User
+	err := DB.Where("email = ?", userInfo.Email).First(&tempUser).Error
 	if err == nil {
-		return errors.New("There is already an account with this email. Please login instead.")
+		return errors.New("there is already an account with this email. please login instead")
 	}
 	// As the email does not exist in the database, we first hash it before adding it
-	// The 8 represents the cost of hashing. 8 is chosen arbitrarily
 	// We also salt the password for extra security
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(userInfo.Password), 8)
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(userInfo.Password), bcrypt.DefaultCost)
 	if err == nil {
 		// If no errors, we can add the user info to the database
 		userInfo.Password = string(hashedPass)
-		err := DB.Create(creds)
-		if err == nil {
+		err := DB.Create(&userInfo)
+		if err.Error == nil {
 			return nil
 		}
+		fmt.Println(err.Error)
 		return err.Error
 	}
 	return err
