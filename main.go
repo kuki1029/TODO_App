@@ -14,10 +14,10 @@ import (
 func setupRoutes(app *fiber.App) {
 	// Signup page for user
 	app.Post("/signup", controller.Signup)
-	/*
-		// Login page for user
-		app.Post("/login", LoginFunc)
-
+	
+	// Login page for user
+	app.Post("/login", controller.Login)
+/*
 		// Logout
 		app.Post("/logout", logoutFunc)
 

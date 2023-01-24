@@ -68,3 +68,23 @@ func AddUser(userInfo models.User) error {
 	}
 	return err
 }
+
+// This function will check if the user exists in the database or not
+// This will allow us to authenticate logins
+func AuthenticateUser(userInfo models.User) error {
+	// Need to create temp to store the details if the user does exist
+	var tempUser models.User
+	err := DB.Where("email = ?", userInfo.Email).First(&tempUser).Error
+	if err == nil {
+		// Here we can compare the hashed password obtained from the database and the password entered by the user
+		err = bcrypt.CompareHashAndPassword([]byte(tempUser.Password), []byte(userInfo.Password))
+		// If we get no errors above, it means that the two passwords match and we can login the user
+		if err == nil {
+			return nil
+		} else {
+			return errors.New("the password is incorrect. Please try again")
+		}
+	} else {
+		return errors.New("there is no account under this email. Please signup first")
+	}
+}
