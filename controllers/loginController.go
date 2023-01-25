@@ -21,7 +21,6 @@ func Login(ctx *fiber.Ctx) error {
 	}
 	// Once we have their credentials, we need to check if the user is in the database
 	err = database.AuthenticateUser(creds)
-	fmt.Println(err)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
