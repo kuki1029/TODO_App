@@ -14,10 +14,10 @@ import (
 func setupRoutes(app *fiber.App) {
 	// Signup page for user
 	app.Post("/signup", controller.Signup)
-	/*
-		// Login page for user
-		app.Post("/login", LoginFunc)
 
+	// Login page for user
+	app.Post("/login", controller.Login)
+	/*
 		// Logout
 		app.Post("/logout", logoutFunc)
 
@@ -38,15 +38,19 @@ func main() {
 
 	// This serves the css files so it the HTML can render it
 	app.Static("/static", "./static")
+	// Servers all the HTML filse
+	app.Static("/", "./views", fiber.Static{
+		Index: "login.html",
+	})
 
 	setupRoutes(app)
-
-	app.Get("/", func(c *fiber.Ctx) error {
-		// Render index
-		return c.Render("signup", fiber.Map{
-			"Title": "Hello, World!",
-		})
-	})
+	/*
+		app.Get("/", func(c *fiber.Ctx) error {
+			// Render index
+			return c.Render("login", fiber.Map{
+				"Title": "Login",
+			})
+		})*/
 
 	app.Listen("127.0.0.1:8080")
 }
