@@ -43,7 +43,7 @@ function signupButton() {
         if (result.success) {
           // If everything was okay, we redirect the user to the login page
           // so that they can signin with their new account and view tasks
-          window.location.href = "/login";
+          window.location.href = "/login.html";
         }
         else {
           window.alert(result.message)
@@ -77,6 +77,7 @@ function loginButton() {
       'Content-Type': 'application/json; charset=UTF-8'
     })
   }
+  
   // Now we can fetch the data using the above variable.
   // Normally, fetch defaults to GET but we redefined it above
   fetch('/login', fetchData)
@@ -91,7 +92,7 @@ function loginButton() {
       if (result.success) {
         // If everything was okay, we redirect the user to the tasks page so
         // that they can view their tasks
-        window.location.href = "/tasks";
+        window.location.href = "/todo.html";
       }
       else {
         window.alert(result.message)

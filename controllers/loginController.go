@@ -6,6 +6,7 @@ import (
 	"TODO/database"
 	"TODO/models"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -18,22 +19,22 @@ func Login(ctx *fiber.Ctx) error {
 	if err != nil {
 		fmt.Println("Error with parsing credentials")
 	}
-
 	// Once we have their credentials, we need to check if the user is in the database
 	err = database.AuthenticateUser(creds)
+	fmt.Println(err)
 	if err != nil {
-		ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
 			"message": "No account found. Please signup first.",
 		})
 	}
 	// To be able to identify this user on other pages, we need to create a cookie for their browser
 	cookie := new(fiber.Cookie)
-	cookie.Name = "john"
-	cookie.Value = "doe"
+	cookie.Name = "userID"
+	// This will be changed. This is just here as a placeholder so that the tasks can be worked on.
+	cookie.Value = strconv.FormatUint(uint64(database.ReturnUserID(creds)), 10)
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	ctx.Cookie(cookie)
-
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"message": "Login successful.",

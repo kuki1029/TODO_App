@@ -63,7 +63,6 @@ func AddUser(userInfo models.User) error {
 		if err.Error == nil {
 			return nil
 		}
-		fmt.Println(err.Error)
 		return err.Error
 	}
 	return err
@@ -87,4 +86,11 @@ func AuthenticateUser(userInfo models.User) error {
 	} else {
 		return errors.New("there is no account under this email. Please signup first")
 	}
+}
+
+// This function returns the user ID
+func ReturnUserID(userInfo models.User) uint {
+	var tempUser models.User
+	DB.Where("email = ?", userInfo.Email).First(&tempUser)
+	return tempUser.ID
 }
