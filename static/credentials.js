@@ -93,6 +93,13 @@ function loginButton() {
         // If everything was okay, we redirect the user to the tasks page so
         // that they can view their tasks
         window.location.href = "/todo.html";
+        // We also need to call the tasks method
+        let fetchData = {
+          headers: new Headers({
+            'Content-Type': 'application/json; charset=UTF-8'
+          })
+        }
+        fetch('/tasks', fetchData)
       }
       else {
         window.alert(result.message)

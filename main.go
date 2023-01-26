@@ -17,17 +17,19 @@ func setupRoutes(app *fiber.App) {
 
 	// Login page for user
 	app.Post("/login", controller.Login)
-	/*
-		// Logout
-		app.Post("/logout", logoutFunc)
+	// Show tasks to user
+	app.Get("/tasks", controller.DisplayTasks)
 
-		// Show tasks to user
-		app.Get("/tasks", tasksFunc) */
+	/*
+	   // Logout
+	   		app.Post("/logout", logoutFunc)
+	*/
 }
 
 func main() {
 	// Setup the database
 	database.ConnectToDB()
+	database.ConnectToDBTasks()
 	// Create a new engine
 	engine := html.New("./views", ".html")
 
