@@ -21,7 +21,6 @@ func Login(ctx *fiber.Ctx) error {
 	}
 	// Once we have their credentials, we need to check if the user is in the database
 	err = database.AuthenticateUser(creds)
-	fmt.Println(err)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -51,7 +50,6 @@ func Signup(ctx *fiber.Ctx) error {
 	if err != nil {
 		fmt.Println("Error with parsing credentials")
 	}
-
 	// Once we have the required data, we need to make sure the user isn't a duplicate
 	err = database.AddUser(creds)
 	if err != nil {
