@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Tasksp</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="../static/tasks.css">
+</head>
+
+<body>
+  
+  <div id="AddTask" class="header">
+    <h2>My To Do List</h2>
+    <input type="text" id="myInput" placeholder="Task Name">
+    <span onclick="newElement()" class="addBtn">Add</span>
+  </div>
+
+  <ul id="taskList">
+    {{range .Tasks}}
+    <li>{{.TaskName}}</li>
+    {{end}}
+  </ul>
+</body>
+</html>

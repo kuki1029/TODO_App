@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/jinzhu/copier"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -39,18 +38,4 @@ func ConnectToDBTasks() {
 	}
 }
 
-// This function returns the tasks for a particular user by looking them up through their ID
-func ReturnTasksWithID(ID uint) ([]models.TaskResponse, error) {
-	tempTasks := []models.Task{}
-	// As the user model stores a task struct, and not TaskResponse, we need to create
-	// another variable so we can return the TaskResponse
-	resTasks := []models.TaskResponse{}
-	err := DB.Where("user_id = ?", ID).First(&tempTasks).Error
-	if err != nil {
-		return resTasks, err
-	}
-	// If no error, we can copy the tasks into the resTasks. The copier function handles this for us
-	copier.Copy(&resTasks, &tempTasks)
-	return resTasks, nil
 
-}

@@ -40,7 +40,7 @@ func main() {
 
 	// This serves the css files so it the HTML can render it
 	app.Static("/static", "./static")
-	// Servers all the HTML filse
+	// Serves all the HTML filse
 	app.Static("/", "./views", fiber.Static{
 		Index: "login.html",
 	})

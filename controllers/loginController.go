@@ -50,7 +50,6 @@ func Signup(ctx *fiber.Ctx) error {
 	if err != nil {
 		fmt.Println("Error with parsing credentials")
 	}
-
 	// Once we have the required data, we need to make sure the user isn't a duplicate
 	err = database.AddUser(creds)
 	if err != nil {

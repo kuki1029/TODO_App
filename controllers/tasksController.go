@@ -1,14 +1,29 @@
 package controller
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 
-	"TODO/models"
+	"TODO/database"
 )
 
 // This function will obtain the users tasks and then render them through fiber
 // so that they can be displayed on the frontend
 func DisplayTasks(ctx *fiber.Ctx) error {
-	// First we obtain the models struct for tasks
-	taskResponse := make([]models.TaskResponse, 0)
+	// Temp method to obtain userID. 
+	userID, _ := strconv.ParseUint(ctx.Cookies("userID"), 10, 64)
+	ID := uint(userID)
+	taskResponse, err := database.ReturnTasksWithID(ID)
+
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	} else {
+		return ctx.Render("tasks", fiber.Map{
+			"Tasks": taskResponse,
+		})
+	}
 }
