@@ -1,0 +1,56 @@
+// Allows user to add tasks. This function will update the UI and also backend with the new task
+function newElement() {
+    li = document.createElement("li")
+    task = document.getElementById("myInput").value
+    // Creates a node so we can add the text to the list element
+    text = document.createTextNode(task)
+    li.appendChild(text)
+    // If inputted text was empty, we let the user know
+    if (task == '') {
+        window.alert("You must write something!")
+    }
+    // Add the task to database through the fetch api
+    let fetchData = {
+        method: 'POST',
+        // The stringify converts a JS value to JSON string
+        body: JSON.stringify({TaskName: task}),
+        headers: new Headers({
+          'Content-Type': 'application/json; charset=UTF-8'
+        })
+      }
+    // Now we can fetch the data using the above variable.
+    // Normally, fetch defaults to GET but we redefined it above
+    fetch('/tasks', fetchData)
+    // This allows us to work with the data received from the fetch API call
+    // We simple convert it back to JSON
+    .then(resposne => {
+        return resposne.json();
+      })
+      // Using the converted value, we can check if the controller function
+      // was successful or not.
+      .then(result => {
+        if (result.success) {
+            // If everything was okay, we can update the UI to show the new added task
+            // Add the list element to the page
+            document.getElementById("taskList").appendChild(li)
+            // Set the input field to empty again
+            document.getElementById("myInput").value = "";
+            span = document.createElement("SPAN");
+            txt = document.createTextNode("\u00D7");
+            span.className = "close";
+            span.appendChild(txt);
+            li.appendChild(span);
+        
+            for (i = 0; i < close.length; i++) {
+            close[i].onclick = function() {
+                div = this.parentElement;
+                div.style.display = "none";
+            }
+            }
+        }
+        else {
+          window.alert("There was an error with adding the task. Please try again.")
+        }
+      })
+
+}

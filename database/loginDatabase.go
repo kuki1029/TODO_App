@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/jinzhu/copier"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
@@ -60,9 +59,7 @@ func AddUser(userInfo models.User) error {
 	if err == nil {
 		// If no errors, we can add the user info to the database
 		userInfo.Password = string(hashedPass)
-		// We also add an empty tasks array to represent their list of tasks
-		tempTasks := []models.Task{}
-		userInfo.Tasks = tempTasks
+
 		err := DB.Create(&userInfo)
 		if err.Error == nil {
 			return nil
@@ -100,19 +97,19 @@ func ReturnUserID(userInfo models.User) uint {
 	return tempUser.ID
 }
 
-// This function returns the tasks for a particular user by looking them up through their ID
-// This function is under loginDatabase as it deals with the user side of things
-func ReturnTasksWithID(ID uint) ([]models.TaskResponse, error) {
-	tempTasks := []models.User{}
-	// As the user model stores a task struct, and not TaskResponse, we need to create
-	// another variable so we can return the TaskResponse
-	resTasks := []models.TaskResponse{}
+// This function will add the task to the database by updating the task array
+func AddTask(task models.Task, ID uint) error {
+	tempTasks := models.User{}
 	err := DB.Where("ID = ?", ID).First(&tempTasks).Error
 	if err != nil {
-		return resTasks, err
+		return errors.New("could not find user in database")
 	}
-	// If no error, we can copy the tasks into the resTasks. The copier function handles this for us
-	copier.Copy(&resTasks, &tempTasks)
-	return resTasks, nil
-
+	// We append the tasks onto a list
+	tempTasks.Tasks = append(tempTasks.Tasks, task)
+	err = DB.Model(&tempTasks).Update("Tasks", tempTasks.Tasks).Error
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
 }
