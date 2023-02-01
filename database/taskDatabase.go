@@ -55,3 +55,10 @@ func ReturnTasksWithID(ID uint) ([]models.TaskResponse, error) {
 	return resTasks, nil
 
 }
+
+// This function will delete the task from the database
+func DelTask(ID uint) error {
+	tempTasks := models.Task{}
+	err := DB.Delete(&tempTasks, ID).Error
+	return err
+}

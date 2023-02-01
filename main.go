@@ -20,6 +20,8 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/tasks", controller.DisplayTasks)
 	// Add task to database
 	app.Post("/tasks", controller.AddTasks)
+	// Delete tasks from database
+	app.Delete("/tasks/:id", controller.DelTask)
 
 	/*
 	   // Logout

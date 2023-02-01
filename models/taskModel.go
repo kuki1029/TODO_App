@@ -11,6 +11,7 @@ type Task struct {
 	UserID   uint
 }
 type TaskResponse struct {
+	ID       uint   `gorm:"primary_key" json:"id"`
 	TaskName string `validate:"omitempty,ascii"`
 	IsDone   bool   `gorm:"default:false" json:"isDone"`
 	UserID   uint

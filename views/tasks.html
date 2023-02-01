@@ -2,10 +2,10 @@
 <html lang="en" >
 <head>
   <meta charset="UTF-8">
-  <title>Tasksp</title>
+  <title>Tasks</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
   <link rel="stylesheet" href="../static/tasks.css">
-  <script type = "text/javascript" src = "../static/tasks.js"></script>
+  
 </head>
 
 <body>
@@ -18,8 +18,9 @@
 
   <ul id="taskList">
     {{range .Tasks}}
-    <li>{{.TaskName}}</li>
+    <li id = {{.ID}}>{{.TaskName}}<span class="close">x</span></li>
     {{end}}
   </ul>
 </body>
 </html>
+<script type = "text/javascript" src = "../static/tasks.js"></script>

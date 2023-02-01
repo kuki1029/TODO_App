@@ -58,3 +58,29 @@ func AddTasks(ctx *fiber.Ctx) error {
 		})
 	}
 }
+
+// This function will delete the tasks from the database
+func DelTask(ctx *fiber.Ctx) error {
+	// Parse the ID and convert it to int
+	num, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	ID := uint(num)
+	fmt.Println(ctx.Params("id"))
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+	// Call the database function to delete the task
+	err = database.DelTask(ID)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	} else {
+		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+			"success": true,
+		})
+	}
+}
