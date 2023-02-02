@@ -46,7 +46,7 @@ func AddTasks(ctx *fiber.Ctx) error {
 		TaskName: tempTask.TaskName,
 		UserID:   ID,
 	}
-	err = database.AddTask(task, ID)
+	primaryID, err := database.AddTask(task)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -55,6 +55,7 @@ func AddTasks(ctx *fiber.Ctx) error {
 	} else {
 		return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
 			"success": true,
+			"ID":      primaryID,
 		})
 	}
 }
@@ -64,7 +65,6 @@ func DelTask(ctx *fiber.Ctx) error {
 	// Parse the ID and convert it to int
 	num, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
 	ID := uint(num)
-	fmt.Println(ctx.Params("id"))
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
@@ -73,6 +73,31 @@ func DelTask(ctx *fiber.Ctx) error {
 	}
 	// Call the database function to delete the task
 	err = database.DelTask(ID)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	} else {
+		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+			"success": true,
+		})
+	}
+}
+
+// This function will mark the task as done in the database
+func TaskDone(ctx *fiber.Ctx) error {
+	// Parse the ID and convert it to int
+	num, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	ID := uint(num)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+	// Call the database function to mark the task as done
+	err = database.MarkTaskDone(ID)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,

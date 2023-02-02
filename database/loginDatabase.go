@@ -97,19 +97,3 @@ func ReturnUserID(userInfo models.User) uint {
 	return tempUser.ID
 }
 
-// This function will add the task to the database by updating the task array
-func AddTask(task models.Task, ID uint) error {
-	tempTasks := models.User{}
-	err := DB.Where("ID = ?", ID).First(&tempTasks).Error
-	if err != nil {
-		return errors.New("could not find user in database")
-	}
-	// We append the tasks onto a list
-	tempTasks.Tasks = append(tempTasks.Tasks, task)
-	err = DB.Model(&tempTasks).Update("Tasks", tempTasks.Tasks).Error
-	if err != nil {
-		return err
-	} else {
-		return nil
-	}
-}

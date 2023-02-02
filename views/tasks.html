@@ -18,7 +18,11 @@
 
   <ul id="taskList">
     {{range .Tasks}}
-    <li id = {{.ID}}>{{.TaskName}}<span class="close">x</span></li>
+      {{if .IsDone}}
+        <li class="checked" id = {{.ID}}>{{.TaskName}}<span class="close">x</span></li>
+      {{else}}
+        <li id = {{.ID}}>{{.TaskName}}<span class="close">x</span></li>
+      {{end}}
     {{end}}
   </ul>
 </body>

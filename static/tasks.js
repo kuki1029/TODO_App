@@ -41,14 +41,14 @@ function newElement() {
             txt = document.createTextNode("\u00D7");
             span.className = "close";
             span.appendChild(txt);
+            // Adds the ability to delete the task
+            span.onclick = (function() {
+              delElement(this)
+            })
             li.appendChild(span);
-        
-            for (i = 0; i < close.length; i++) {
-              close[i].onclick = function() {
-                  div = this.parentElement;
-                  div.style.display = "none";
-              }
-            }
+            li.id = result.ID;
+            
+
         }
         else {
           window.alert("There was an error with adding the task. Please try again.")
@@ -92,7 +92,38 @@ function delElement(elem) {
   })
 }
 
+// This function will add the checked class to the list element when clicked.
+// This will make it appear crossed out. This will also update the backend to 
+// mark the task done.
+function markElemDone(elem) {
 
+  var id = elem.id
+  // Add the task to database through the fetch api
+  let fetchData = {
+    method: 'POST',
+    headers: new Headers({
+      'Content-Type': 'application/json; charset=UTF-8'
+    })
+  }
+  // Now we can fetch the data using the above variable.
+  // Normally, fetch defaults to GET but we redefined it above
+  fetch('/tasksDone/' + id, fetchData)
+  // We simple convert it back to JSON
+  .then(resposne => {
+    return resposne.json();
+  })
+  // Using the converted value, we can check if the controller function
+  // was successful or not.
+  .then(result => {
+    if (result.success) {
+      // If deletion in database was successful, we can mark it done on the frontend
+      elem.classList.toggle('checked');
+    }
+    else {
+      window.alert("There was an error with marking this task as done. Please try again.")
+    }
+  })
+}
 
 // This code allows the user to click on the x button to delete a task
 var close = document.getElementsByClassName("close");
@@ -106,8 +137,6 @@ for (i = 0; i < close.length; i++) {
 // This allows the user to mark a task as done. It crosses it out by adding the checked class to the list element
 var list = document.querySelector('ul');
 list.addEventListener('click', function(ev) {
-  if (ev.target.tagName === 'LI') {
-    ev.target.classList.toggle('checked');
-  }
+  markElemDone(ev.target)
 }, false);
 
