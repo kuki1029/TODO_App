@@ -14,12 +14,16 @@ import (
 func setupRoutes(app *fiber.App) {
 	// Signup page for user
 	app.Post("/signup", controller.Signup)
-
 	// Login page for user
 	app.Post("/login", controller.Login)
 	// Show tasks to user
 	app.Get("/tasks", controller.DisplayTasks)
-
+	// Add task to database
+	app.Post("/tasks", controller.AddTasks)
+	// Delete tasks from database
+	app.Delete("/tasks/:id", controller.DelTask)
+	// Mark a task done given a certain id
+	app.Post("/tasksDone/:id", controller.TaskDone)
 	/*
 	   // Logout
 	   		app.Post("/logout", logoutFunc)

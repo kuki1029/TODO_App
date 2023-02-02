@@ -6,12 +6,13 @@ import (
 
 type Task struct {
 	gorm.Model
-	TaskName  string `validate:"omitempty,ascii"`
-	IsDone    bool `gorm:"default:false" json:"isDone"`
-	UserID    uint
+	TaskName string `validate:"omitempty,ascii"`
+	IsDone   bool   `gorm:"default:false" json:"isDone"`
+	UserID   uint
 }
 type TaskResponse struct {
-	TaskName  string `validate:"omitempty,ascii"`
-	IsDone    bool `gorm:"default:false" json:"isDone"`
-	UserID    uint
+	ID       uint   `gorm:"primary_key" json:"id"`
+	TaskName string `validate:"omitempty,ascii"`
+	IsDone   bool   `gorm:"default:false" json:"isDone"`
+	UserID   uint
 }

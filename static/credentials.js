@@ -90,9 +90,7 @@ function loginButton() {
     // was successful or not.
     .then(result => {
       if (result.success) {
-        // If everything was okay, we redirect the user to the tasks page so
-        // that they can view their tasks
-        window.location.href = "/tasks";
+        
         // We also need to call the tasks method
         // This defaults to GET
         let fetchData2 = {
@@ -102,6 +100,9 @@ function loginButton() {
           })
         }
         fetch('/tasks', fetchData2)
+        // If everything was okay, we redirect the user to the tasks page so
+        // that they can view their tasks
+        window.location.href = "/tasks";
       }
       else {
         window.alert(result.message)
