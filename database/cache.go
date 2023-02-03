@@ -1,9 +1,12 @@
 package database
 
 import (
+	"strings"
+
 	"github.com/go-redis/redis"
 
 	"fmt"
+	"strconv"
 )
 
 // Sets up the redis cache
@@ -25,4 +28,18 @@ func Ping(client *redis.Client) error {
 	// Output: PONG <nil>
 
 	return nil
+}
+
+// This function gets the users details from redis storage
+func GetFromRedis(client *redis.Client, key string) (uint, error) {
+	userDetails := client.Get(key)
+	user, err := userDetails.String(), userDetails.Err()
+	if (err != nil) || (len(string(user)) == 0) {
+		// 0 does not represent any id in the database so we return that incase of an error.
+		return 0, err
+	}
+	idString := strings.Fields(user)
+	userID, _ := strconv.ParseUint(idString[3], 10, 64)
+	ID := uint(userID)
+	return ID, nil
 }

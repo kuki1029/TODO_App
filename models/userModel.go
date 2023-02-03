@@ -13,6 +13,7 @@ type User struct {
 }
 
 type UserResponse struct {
+	ID    uint   `gorm:"primary_key" json:"id"`
 	Email string `json:"email"`
 	Tasks []Task `json:"tasks"`
 }

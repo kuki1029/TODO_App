@@ -10,9 +10,6 @@ import (
 	"TODO/models"
 )
 
-var client = database.RedisSetUp()
-var tt = database.Ping(client)
-
 // This function will obtain the users tasks and then render them through fiber
 // so that they can be displayed on the frontend
 func DisplayTasks(ctx *fiber.Ctx) error {
