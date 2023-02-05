@@ -32,7 +32,7 @@ func Login(ctx *fiber.Ctx) error {
 	}
 	// To be able to identify this user on other pages, we need to create a cookie for their browser
 	cookie := new(fiber.Cookie)
-	cookie.Name = "userID"
+	cookie.Name = "sessionKey"
 	// We generate a random key to store in the cookie value. Also stored in redis cache
 	cookie.Value = uuid.NewString()
 	cookie.Expires = time.Now().Add(24 * time.Hour)
