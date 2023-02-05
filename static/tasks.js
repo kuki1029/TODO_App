@@ -38,7 +38,7 @@ function newElement() {
             // Set the input field to empty again
             document.getElementById("myInput").value = "";
             span = document.createElement("SPAN");
-            txt = document.createTextNode("\u00D7");
+            txt = document.createTextNode("x");
             span.className = "close";
             span.appendChild(txt);
             // Adds the ability to delete the task

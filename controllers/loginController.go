@@ -2,13 +2,16 @@ package controller
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 
 	"TODO/database"
 	"TODO/models"
 	"fmt"
-	"strconv"
 	"time"
 )
+
+var client = database.RedisSetUp()
+var _ = database.Ping(client)
 
 // This function will create cookies for the user and log them in
 // so that they can view their tasks.
@@ -29,11 +32,14 @@ func Login(ctx *fiber.Ctx) error {
 	}
 	// To be able to identify this user on other pages, we need to create a cookie for their browser
 	cookie := new(fiber.Cookie)
-	cookie.Name = "userID"
-	// This will be changed. This is just here as a placeholder so that the tasks can be worked on.
-	cookie.Value = strconv.FormatUint(uint64(database.ReturnUserID(creds)), 10)
+	cookie.Name = "sessionKey"
+	// We generate a random key to store in the cookie value. Also stored in redis cache
+	cookie.Value = uuid.NewString()
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	ctx.Cookie(cookie)
+	redisVal := "email: " + creds.Email + " id: " + fmt.Sprint(creds.ID)
+	// We set it to expire in 24 hours
+	client.Set(cookie.Value, redisVal, 24*time.Hour)
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"message": "Login successful.",

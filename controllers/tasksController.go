@@ -13,9 +13,15 @@ import (
 // This function will obtain the users tasks and then render them through fiber
 // so that they can be displayed on the frontend
 func DisplayTasks(ctx *fiber.Ctx) error {
-	// Temp method to obtain userID.
-	userID, _ := strconv.ParseUint(ctx.Cookies("userID"), 10, 64)
-	ID := uint(userID)
+	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
+	key := ctx.Cookies("sessionKey")
+	ID, err := database.GetFromRedis(client, key)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
 	taskResponse, err := database.ReturnTasksWithID(ID)
 
 	if err != nil {
@@ -32,12 +38,18 @@ func DisplayTasks(ctx *fiber.Ctx) error {
 
 // This function will add the task to the database
 func AddTasks(ctx *fiber.Ctx) error {
-	// Temp method to obtain userID.
-	userID, _ := strconv.ParseUint(ctx.Cookies("userID"), 10, 64)
-	ID := uint(userID)
+	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
+	key := ctx.Cookies("sessionKey")
+	ID, err := database.GetFromRedis(client, key)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
 	tempTask := models.Task{}
 	// Get the details of the task
-	err := ctx.BodyParser(&tempTask)
+	err = ctx.BodyParser(&tempTask)
 	if err != nil {
 		fmt.Println("Error with parsing credentials")
 	}
@@ -62,6 +74,16 @@ func AddTasks(ctx *fiber.Ctx) error {
 
 // This function will delete the tasks from the database
 func DelTask(ctx *fiber.Ctx) error {
+	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
+	key := ctx.Cookies("sessionKey")
+	// We don't need the user ID here, but we still need to verify
+	_, err := database.GetFromRedis(client, key)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
 	// Parse the ID and convert it to int
 	num, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
 	ID := uint(num)
@@ -87,6 +109,16 @@ func DelTask(ctx *fiber.Ctx) error {
 
 // This function will mark the task as done in the database
 func TaskDone(ctx *fiber.Ctx) error {
+	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
+	key := ctx.Cookies("sessionKey")
+	// We don't need the user ID here, but we still need to verify
+	_, err := database.GetFromRedis(client, key)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
 	// Parse the ID and convert it to int
 	num, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
 	ID := uint(num)
