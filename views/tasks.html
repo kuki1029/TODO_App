@@ -9,8 +9,15 @@
 </head>
 
 <body>
+
   
   <div id="AddTask" class="header">
+
+    <div class="grid-container-element">
+      <div class="grid-child-element">Hello {{.Name}}!</div>
+      <div class="grid-child-element-right">Logout</div>
+  </div>
+
     <h2>My To Do List</h2>
     <input type="text" id="myInput" placeholder="Task Name">
     <span onclick="newElement()" class="addBtn">Add</span>

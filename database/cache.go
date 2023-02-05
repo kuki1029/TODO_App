@@ -14,7 +14,6 @@ func RedisSetUp() *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
-
 	return client
 }
 
@@ -38,8 +37,10 @@ func GetFromRedis(client *redis.Client, key string) (uint, error) {
 		// 0 does not represent any id in the database so we return that incase of an error.
 		return 0, err
 	}
+
 	idString := strings.Fields(user)
-	userID, _ := strconv.ParseUint(idString[3], 10, 64)
+	userID, _ := strconv.ParseUint(idString[5], 10, 64)
 	ID := uint(userID)
 	return ID, nil
 }
+ 
