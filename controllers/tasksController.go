@@ -23,6 +23,14 @@ func DisplayTasks(ctx *fiber.Ctx) error {
 		})
 	}
 	taskResponse, err := database.ReturnTasksWithID(ID)
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+	name, err := database.ReturnName(ID)
+	fmt.Println(name)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -32,6 +40,7 @@ func DisplayTasks(ctx *fiber.Ctx) error {
 	} else {
 		return ctx.Render("tasks", fiber.Map{
 			"Tasks": taskResponse,
+			"Name":  name,
 		})
 	}
 }

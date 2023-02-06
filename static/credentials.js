@@ -3,6 +3,7 @@
    update the page accordingly for the user. */
 function signupButton() {
   // Obtain the values from the form and then get their value
+  var name = document.getElementById("name").value
   var email = document.getElementById("email").value
   var password = document.getElementById("password").value
   var confirm_pass = document.getElementById("confirm_pass").value
@@ -17,6 +18,7 @@ function signupButton() {
   // This else activated if the passwords match.
   else {
     let loginData = {
+      Name: name,
       Email: email,
       Password: password
     }

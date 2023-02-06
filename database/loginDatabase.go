@@ -93,7 +93,20 @@ func AuthenticateUser(userInfo models.User) error {
 func ReturnUserID(userInfo models.User) uint {
 	var tempUser models.User
 	DB.Where("email = ?", userInfo.Email).First(&tempUser)
-
 	return tempUser.ID
 }
 
+// This function returns the name for a particular user using their ID
+func ReturnName(ID uint) (string, error) {
+	tempUser := models.User{}
+	// As the user model stores a task struct, and not TaskResponse, we need to create
+	// another variable so we can return the TaskResponse
+	err := DB.Where("ID = ?", ID).Find(&tempUser).Error
+
+	if err != nil {
+		// Return blank name incase of error
+		return "", err
+	}
+	return tempUser.Name, nil
+
+}

@@ -37,7 +37,8 @@ func Login(ctx *fiber.Ctx) error {
 	cookie.Value = uuid.NewString()
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	ctx.Cookie(cookie)
-	redisVal := "email: " + creds.Email + " id: " + fmt.Sprint(creds.ID)
+	ID := database.ReturnUserID(creds)
+	redisVal := "email: " + creds.Email + " id: " + fmt.Sprint(ID)
 	// We set it to expire in 24 hours
 	client.Set(cookie.Value, redisVal, 24*time.Hour)
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -70,4 +71,21 @@ func Signup(ctx *fiber.Ctx) error {
 			"message": "Account created.",
 		})
 	}
+}
+
+// This function logs out the user by replacing the stored cookies
+func Logout(ctx *fiber.Ctx) error {
+	// Delete from redis cache
+	client.Del(ctx.Cookies("sessionKey"))
+	// Make new cookie to replace current cookie
+	cookie := new(fiber.Cookie)
+	cookie.Name = "sessionKey"
+	cookie.Value = ""
+	// This makes it expire. We use -100 so it expires for older versions of IE too
+	cookie.Expires = time.Now().Add(-100 * time.Hour)
+	ctx.Cookie(cookie)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "Logged out.",
+	})
 }

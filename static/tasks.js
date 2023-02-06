@@ -125,6 +125,32 @@ function markElemDone(elem) {
   })
 }
 
+// This function logs out the user
+function logout() {
+  let fetchData = {
+    method: 'POST',
+    headers: new Headers({
+      'Content-Type': 'application/json; charset=UTF-8'
+    })
+  }
+  // Now we can fetch the data using the above variable.
+  // Normally, fetch defaults to GET but we redefined it above
+  fetch('/logout', fetchData)
+  .then(resposne => {
+    return resposne.json();
+  })
+  // Using the converted value, we can check if the controller function
+  // was successful or not.
+  .then(result => {
+    if (result.success) {
+      window.location.href = "/";
+    }
+    else {
+      window.alert("Could not logout. Please try again.")
+    }
+  })
+}
+
 // This code allows the user to click on the x button to delete a task
 var close = document.getElementsByClassName("close");
 var i;
