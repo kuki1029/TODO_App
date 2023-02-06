@@ -1,4 +1,4 @@
-module TODO
+module todo
 
 go 1.19
 

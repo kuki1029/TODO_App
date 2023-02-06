@@ -6,8 +6,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"TODO/database"
-	"TODO/models"
+	"todo/database"
+	"todo/models"
 )
 
 // This function will obtain the users tasks and then render them through fiber

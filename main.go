@@ -8,8 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html"
 
-	controller "TODO/controllers"
-	"TODO/database"
+	"todo/controller"
+	"todo/database"
 )
 
 // This function will create all the needed routes for our different pages
