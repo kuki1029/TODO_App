@@ -83,7 +83,6 @@ func MarkTaskDone(ID uint) error {
 	}
 	// Change the boolean to inverse as user might need to mark a task as not done
 	tempTasks.IsDone = !tempTasks.IsDone
-	fmt.Println(tempTasks.IsDone)
 	err = DB.Save(&tempTasks).Error
 	return err
 

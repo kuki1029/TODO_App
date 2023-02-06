@@ -75,7 +75,9 @@ func Signup(ctx *fiber.Ctx) error {
 
 // This function logs out the user by replacing the stored cookies
 func Logout(ctx *fiber.Ctx) error {
+	// Delete from redis cache
 	client.Del(ctx.Cookies("sessionKey"))
+	// Make new cookie to replace current cookie
 	cookie := new(fiber.Cookie)
 	cookie.Name = "sessionKey"
 	cookie.Value = ""

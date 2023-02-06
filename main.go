@@ -24,10 +24,9 @@ func setupRoutes(app *fiber.App) {
 	app.Delete("/tasks/:id", controller.DelTask)
 	// Mark a task done given a certain id
 	app.Post("/tasksDone/:id", controller.TaskDone)
-	/*
-	   // Logout
-	   		app.Post("/logout", logoutFunc)
-	*/
+	// Logout
+	app.Post("/logout", controller.Logout)
+
 }
 
 func main() {

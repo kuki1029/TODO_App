@@ -79,7 +79,7 @@
   
   /* Style the header */
   .header {
-    background-color: #f44336;
+    background-color: #645CBB;
     padding: 30px 40px;
     color: white;
     text-align: center;
@@ -118,6 +118,19 @@
   }
   
   .addBtn:hover {
+    background-color: #bbb;
+  }
+
+  /* Style the "Logout" button */
+  .logoutBtn {
+    background: #d9d9d9;
+    width: 25%;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .logoutBtn:hover {
     background-color: #bbb;
   }
 
