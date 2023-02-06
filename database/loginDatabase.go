@@ -11,7 +11,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"TODO/models"
+	"todo/models"
 )
 
 // DB represents a Database instance

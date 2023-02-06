@@ -43,4 +43,3 @@ func GetFromRedis(client *redis.Client, key string) (uint, error) {
 	ID := uint(userID)
 	return ID, nil
 }
- 

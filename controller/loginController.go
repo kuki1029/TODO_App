@@ -4,10 +4,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
-	"TODO/database"
-	"TODO/models"
 	"fmt"
 	"time"
+	"todo/database"
+	"todo/models"
 )
 
 var client = database.RedisSetUp()
