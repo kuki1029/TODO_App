@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/alexedwards/argon2id"
 	"github.com/joho/godotenv"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -54,8 +54,7 @@ func AddUser(userInfo models.User) error {
 		return errors.New("there is already an account with this email. please login instead")
 	}
 	// As the email does not exist in the database, we first hash it before adding it
-	// We also salt the password for extra security
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(userInfo.Password), bcrypt.DefaultCost)
+	hashedPass, err := argon2id.CreateHash(userInfo.Password, argon2id.DefaultParams)
 	if err == nil {
 		// If no errors, we can add the user info to the database
 		userInfo.Password = string(hashedPass)
@@ -77,9 +76,12 @@ func AuthenticateUser(userInfo models.User) error {
 	err := DB.Where("email = ?", userInfo.Email).First(&tempUser).Error
 	if err == nil {
 		// Here we can compare the hashed password obtained from the database and the password entered by the user
-		err = bcrypt.CompareHashAndPassword([]byte(tempUser.Password), []byte(userInfo.Password))
+		isSame, err := argon2id.ComparePasswordAndHash(userInfo.Password, tempUser.Password)
 		// If we get no errors above, it means that the two passwords match and we can login the user
-		if err == nil {
+		if err != nil {
+			return errors.New("the password is incorrect. Please try again")
+		}
+		if isSame {
 			return nil
 		} else {
 			return errors.New("the password is incorrect. Please try again")
