@@ -30,7 +30,6 @@ func DisplayTasks(ctx *fiber.Ctx) error {
 		})
 	}
 	name, err := database.ReturnName(ID)
-	fmt.Println(name)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

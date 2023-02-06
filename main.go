@@ -1,10 +1,12 @@
 package main
 
 import (
+	"log"
+	"os"
+	"os/signal"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html"
-
-	//"github.com/joho/godotenv"
 
 	controller "TODO/controllers"
 	"TODO/database"
@@ -26,7 +28,11 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/tasksDone/:id", controller.TaskDone)
 	// Logout
 	app.Post("/logout", controller.Logout)
+}
 
+// Stop the Fiber application
+func exit(app *fiber.App) {
+	_ = app.Shutdown()
 }
 
 func main() {
@@ -49,13 +55,17 @@ func main() {
 	})
 
 	setupRoutes(app)
-	/*
-		app.Get("/", func(c *fiber.Ctx) error {
-			// Render index
-			return c.Render("login", fiber.Map{
-				"Title": "Login",
-			})
-		})*/
 
-	app.Listen("127.0.0.1:8080")
+	// Close any connections on interrupt signal
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		exit(app)
+	}()
+
+	// Start listening on the specified address
+	if err := app.Listen("127.0.0.1:8080"); err != nil {
+		log.Panic(err)
+	}
 }
