@@ -27,7 +27,7 @@ func Login(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
-			"message": "No account found. Please signup first.",
+			"message": err.Error(),
 		})
 	}
 	// To be able to identify this user on other pages, we need to create a cookie for their browser
