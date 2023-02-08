@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/template/html"
 
 	"todo/controller"
-	"todo/database"
+	"todo/repo"
 )
 
 // This function will create all the needed routes for our different pages
@@ -37,8 +37,8 @@ func exit(app *fiber.App) {
 
 func main() {
 	// Setup the database
-	database.ConnectToDB()
-	database.ConnectToDBTasks()
+	repo.ConnectToDB()
+	repo.ConnectToDBTasks()
 	// Create a new engine
 	engine := html.New("./views", ".html")
 
