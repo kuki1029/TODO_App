@@ -6,8 +6,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"todo/database"
+	"todo/middleware"
 	"todo/models"
+	"todo/repo"
 )
 
 // This function will obtain the users tasks and then render them through fiber
@@ -15,21 +16,21 @@ import (
 func DisplayTasks(ctx *fiber.Ctx) error {
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
-	ID, err := database.GetFromRedis(client, key)
+	ID, err := middleware.GetFromRedis(client, key)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
 			"message": err,
 		})
 	}
-	taskResponse, err := database.ReturnTasksWithID(ID)
+	taskResponse, err := repo.ReturnTasksWithID(ID)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
 			"message": err,
 		})
 	}
-	name, err := database.ReturnName(ID)
+	name, err := repo.ReturnName(ID)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -48,7 +49,7 @@ func DisplayTasks(ctx *fiber.Ctx) error {
 func AddTasks(ctx *fiber.Ctx) error {
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
-	ID, err := database.GetFromRedis(client, key)
+	ID, err := middleware.GetFromRedis(client, key)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -66,7 +67,7 @@ func AddTasks(ctx *fiber.Ctx) error {
 		TaskName: tempTask.TaskName,
 		UserID:   ID,
 	}
-	primaryID, err := database.AddTask(task)
+	primaryID, err := repo.AddTask(task)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -85,7 +86,7 @@ func DelTask(ctx *fiber.Ctx) error {
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	// We don't need the user ID here, but we still need to verify
-	_, err := database.GetFromRedis(client, key)
+	_, err := middleware.GetFromRedis(client, key)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -102,7 +103,7 @@ func DelTask(ctx *fiber.Ctx) error {
 		})
 	}
 	// Call the database function to delete the task
-	err = database.DelTask(ID)
+	err = repo.DelTask(ID)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
@@ -120,7 +121,7 @@ func TaskDone(ctx *fiber.Ctx) error {
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	// We don't need the user ID here, but we still need to verify
-	_, err := database.GetFromRedis(client, key)
+	_, err := middleware.GetFromRedis(client, key)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -137,7 +138,7 @@ func TaskDone(ctx *fiber.Ctx) error {
 		})
 	}
 	// Call the database function to mark the task as done
-	err = database.MarkTaskDone(ID)
+	err = repo.MarkTaskDone(ID)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,

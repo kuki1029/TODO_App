@@ -6,12 +6,13 @@ import (
 
 	"fmt"
 	"time"
-	"todo/database"
+	"todo/middleware"
 	"todo/models"
+	"todo/repo"
 )
 
-var client = database.RedisSetUp()
-var _ = database.Ping(client)
+var client = middleware.RedisSetUp()
+var _ = middleware.Ping(client)
 
 // This function will create cookies for the user and log them in
 // so that they can view their tasks.
@@ -23,7 +24,7 @@ func Login(ctx *fiber.Ctx) error {
 		fmt.Println("Error with parsing credentials")
 	}
 	// Once we have their credentials, we need to check if the user is in the database
-	err = database.AuthenticateUser(creds)
+	err = repo.AuthenticateUser(creds)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -37,7 +38,7 @@ func Login(ctx *fiber.Ctx) error {
 	cookie.Value = uuid.NewString()
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	ctx.Cookie(cookie)
-	ID := database.ReturnUserID(creds)
+	ID := repo.ReturnUserID(creds)
 	redisVal := "email: " + creds.Email + " id: " + fmt.Sprint(ID)
 	// We set it to expire in 24 hours
 	client.Set(cookie.Value, redisVal, 24*time.Hour)
@@ -58,7 +59,7 @@ func Signup(ctx *fiber.Ctx) error {
 		fmt.Println("Error with parsing credentials")
 	}
 	// Once we have the required data, we need to make sure the user isn't a duplicate
-	err = database.AddUser(creds)
+	err = repo.AddUser(creds)
 	if err != nil {
 		// In this case, we know the user is a duplicate, so we returen an error message
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
