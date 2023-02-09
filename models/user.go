@@ -13,6 +13,12 @@ type User struct {
 	Tasks    []Task `json:"tasks"`
 }
 
+type UserDTO struct {
+	Name     string `json:"name`
+	Email    string `json:"email`
+	Password string `json:"password"`
+}
+
 type UserResponse struct {
 	ID    uint   `gorm:"primary_key" json:"id"`
 	Email string `json:"email"`

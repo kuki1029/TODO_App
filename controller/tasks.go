@@ -56,7 +56,7 @@ func AddTasks(ctx *fiber.Ctx) error {
 			"message": err,
 		})
 	}
-	tempTask := models.Task{}
+	tempTask := models.TaskDTO{}
 	// Get the details of the task
 	err = ctx.BodyParser(&tempTask)
 	if err != nil {

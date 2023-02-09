@@ -40,7 +40,7 @@ func main() {
 	repo.ConnectToDB()
 	repo.ConnectToDBTasks()
 	// Create a new engine
-	engine := html.New("./views", ".html")
+	engine := html.New("./resources/views", ".html")
 
 	// Pass the engine to the Views
 	app := fiber.New(fiber.Config{
@@ -49,8 +49,9 @@ func main() {
 
 	// This serves the css files so it the HTML can render it
 	app.Static("/static", "./static")
+	app.Static("/resources/JS", "./resources/JS")
 	// Serves all the HTML filse
-	app.Static("/", "./views", fiber.Static{
+	app.Static("/", "./resources/views", fiber.Static{
 		Index: "login.html",
 	})
 
