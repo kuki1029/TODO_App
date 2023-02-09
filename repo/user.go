@@ -42,15 +42,14 @@ func ConnectToDB() {
 
 // This function will add the user credentials to the database
 // The password will be hashed for security reasons
-func AddUser(userInfo models.User) error {
+func AddUser(userInfo models.UserDTO) error {
 	// Get the pointer for the model
 	//creds := &userInfo
 	// First we check for any errors. If there are no errors when retrieving the user
 	// from the database, it means that there exists an entry with that email already.
 	// To prevent duplicate entries, we check for this and return the error
 	var tempUser models.User
-	err := DB.Where("email = ?", userInfo.Email).First(&tempUser).Error
-	if err == nil {
+	if err := DB.Where("email = ?", userInfo.Email).First(&tempUser).Error; err == nil {
 		return errors.New("there is already an account with this email. please login instead")
 	}
 	// As the email does not exist in the database, we first hash it before adding it
@@ -58,8 +57,13 @@ func AddUser(userInfo models.User) error {
 	if err == nil {
 		// If no errors, we can add the user info to the database
 		userInfo.Password = string(hashedPass)
-
-		err := DB.Create(&userInfo)
+		// Add task to database
+		userCreate := models.User{
+			Name:     userInfo.Name,
+			Email:    userInfo.Email,
+			Password: userInfo.Password,
+		}
+		err := DB.Create(&userCreate)
 		if err.Error == nil {
 			return nil
 		}
@@ -70,7 +74,7 @@ func AddUser(userInfo models.User) error {
 
 // This function will check if the user exists in the database or not
 // This will allow us to authenticate logins
-func AuthenticateUser(userInfo models.User) error {
+func AuthenticateUser(userInfo models.UserDTO) error {
 	// Need to create temp to store the details if the user does exist
 	var tempUser models.User
 	err := DB.Where("email = ?", userInfo.Email).First(&tempUser).Error
@@ -92,7 +96,7 @@ func AuthenticateUser(userInfo models.User) error {
 }
 
 // This function returns the user ID
-func ReturnUserID(userInfo models.User) uint {
+func ReturnUserID(userInfo models.UserDTO) uint {
 	var tempUser models.User
 	DB.Where("email = ?", userInfo.Email).First(&tempUser)
 	return tempUser.ID

@@ -17,7 +17,7 @@ var _ = middleware.Ping(client)
 // This function will create cookies for the user and log them in
 // so that they can view their tasks.
 func Login(ctx *fiber.Ctx) error {
-	var creds models.User
+	var creds models.UserDTO
 	// First we need to parse the variable ctx to receive the credentials
 	err := ctx.BodyParser(&creds)
 	if err != nil {
@@ -52,7 +52,7 @@ func Login(ctx *fiber.Ctx) error {
 // This function will be called through the JS and handle any signup requirements
 // the c variable here contains all the required credentials
 func Signup(ctx *fiber.Ctx) error {
-	var creds models.User
+	var creds models.UserDTO
 	// First we need to parse the variable ctx to receive the credentials
 	err := ctx.BodyParser(&creds)
 	if err != nil {
