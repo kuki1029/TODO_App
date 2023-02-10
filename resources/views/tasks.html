@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" >
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tasks</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+  <!-- Bootstrap Font Icon CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
   <link rel="stylesheet" href="../static/tasks.css">
   
@@ -26,7 +31,7 @@
   <ul id="taskList">
     {{range .Tasks}}
       {{if .IsDone}}
-        <li class="checked" id = {{.ID}}>{{.TaskName}}<span class="close">x</span></li>
+        <li class="checked" id = {{.ID}}>{{.TaskName}}<span class="edit"><i class="bi bi-pencil-square"></i></span><span class="close"><i class="bi bi-trash"></i></span></li>
       {{else}}
         <li id = {{.ID}}>{{.TaskName}}<span class="close">x</span></li>
       {{end}}
@@ -35,3 +40,5 @@
 </body>
 </html>
 <script type = "text/javascript" src = "resources/JS/tasks.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<script type = "text/javascript" src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
