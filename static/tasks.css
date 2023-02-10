@@ -114,6 +114,7 @@
     padding: 10px;
     float: left;
     font-size: 16px;
+    height: 40px;
   }
   
   /* Style the "Add" button */
@@ -121,13 +122,15 @@
     padding: 10px;
     width: 25%;
     background: #d9d9d9;
-    color: #555;
+    color: black;
     float: left;
     text-align: center;
     font-size: 16px;
     cursor: pointer;
     transition: 0.3s;
     border-radius: 0;
+    height: 40px;
+    border: none;
   }
   
   .addBtn:hover {

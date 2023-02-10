@@ -38,14 +38,24 @@ function newElement() {
             // Set the input field to empty again
             document.getElementById("myInput").value = "";
             span = document.createElement("SPAN");
-            txt = document.createTextNode("x");
+            i1 = document.createElement("i");
+            i1.className = "bi bi-trash"
             span.className = "close";
-            span.appendChild(txt);
+            span.appendChild(i1);
             // Adds the ability to delete the task
             span.onclick = (function() {
               delElement(this)
             })
+            span2 = document.createElement("SPAN");
+            i2 = document.createElement("i");
+            i2.className = "bi bi-pencil-square"
+            span2.className = "edit"
+            span2.appendChild(i2)
+            span2.onclick = (function() {
+              editButton(this)
+            })
             li.appendChild(span);
+            li.appendChild(span2)
             li.id = result.ID;
             
 
@@ -151,12 +161,53 @@ function logout() {
   })
 }
 
+// This function lets you edit the task
+function editButton(elem) {
+  let newTaskName = prompt("Please enter the new task name.", "Task Name");
+  var id = elem.parentElement.id
+  // Send the new name to the controller through the fetch api
+  let fetchData = {
+    method: 'POST',
+    // The stringify converts a JS value to JSON string
+    body: JSON.stringify({TaskName: newTaskName}),
+    headers: new Headers({
+      'Content-Type': 'application/json; charset=UTF-8'
+    })
+  }
+  fetch('/tasksEdit/' + id, fetchData)
+  // We simple convert it back to JSON
+  .then(resposne => {
+    return resposne.json();
+  })
+  // Using the converted value, we can check if the controller function
+  // was successful or not.
+  .then(result => {
+    if (result.success) {
+      // If deletion in database was successful, we can edit the task name on the frontend
+      elem.parentElement.innerHTML = newTaskName
+    }
+    else {
+      window.alert("There was an error with editing this task as done. Please try again.")
+    }
+  })
+
+}
+
 // This code allows the user to click on the x button to delete a task
 var close = document.getElementsByClassName("close");
 var i;
 for (i = 0; i < close.length; i++) {
   close[i].onclick = (function() {
     delElement(this)
+  })
+}
+
+// This code allows the user to click on the x button to delete a task
+var edit = document.getElementsByClassName("edit");
+var j;
+for (j = 0; j < edit.length; j++) {
+  edit[j].onclick = (function() {
+    editButton(this)
   })
 }
 
