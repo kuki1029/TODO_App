@@ -6,12 +6,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/alexedwards/argon2id"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"todo/models"
+	"todo/password"
 )
 
 // DB represents a Database instance
@@ -53,23 +53,20 @@ func AddUser(userInfo models.UserDTO) error {
 		return errors.New("there is already an account with this email. please login instead")
 	}
 	// As the email does not exist in the database, we first hash it before adding it
-	hashedPass, err := argon2id.CreateHash(userInfo.Password, argon2id.DefaultParams)
-	if err == nil {
-		// If no errors, we can add the user info to the database
-		userInfo.Password = string(hashedPass)
-		// Add task to database
-		userCreate := models.User{
-			Name:     userInfo.Name,
-			Email:    userInfo.Email,
-			Password: userInfo.Password,
-		}
-		err := DB.Create(&userCreate)
-		if err.Error == nil {
-			return nil
-		}
-		return err.Error
+	hashedPass := password.Generate(userInfo.Password)
+	userInfo.Password = string(hashedPass)
+	// Add task to database
+	userCreate := models.User{
+		Name:     userInfo.Name,
+		Email:    userInfo.Email,
+		Password: userInfo.Password,
 	}
-	return err
+	err := DB.Create(&userCreate)
+	if err.Error == nil {
+		return nil
+	}
+	return err.Error
+
 }
 
 // This function will check if the user exists in the database or not
@@ -80,7 +77,7 @@ func AuthenticateUser(userInfo models.UserDTO) error {
 	err := DB.Where("email = ?", userInfo.Email).First(&tempUser).Error
 	if err == nil {
 		// Here we can compare the hashed password obtained from the database and the password entered by the user
-		isSame, err := argon2id.ComparePasswordAndHash(userInfo.Password, tempUser.Password)
+		isSame, err := password.Verify(userInfo.Password, tempUser.Password)
 		// If we get no errors above, it means that the two passwords match and we can login the user
 		if err != nil {
 			return errors.New("the password is incorrect. Please try again")
