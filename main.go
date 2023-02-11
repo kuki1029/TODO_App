@@ -28,6 +28,8 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/tasksDone/:id", controller.TaskDone)
 	// Logout
 	app.Post("/logout", controller.Logout)
+	// Edit task in database
+	app.Post("/tasksEdit/:id", controller.EditTask)
 }
 
 // Stop the Fiber application

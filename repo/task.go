@@ -87,3 +87,15 @@ func MarkTaskDone(ID uint) error {
 	return err
 
 }
+
+// This function will edit the task name
+func EditTask(ID uint, NewName string) error {
+	tempTasks := models.Task{}
+	err := DB.Where("ID = ?", ID).Find(&tempTasks).Error
+	if err != nil {
+		return err
+	}
+	tempTasks.TaskName = NewName
+	err = DB.Save(&tempTasks).Error
+	return err
+}
