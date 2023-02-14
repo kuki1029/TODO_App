@@ -40,7 +40,6 @@ func exit(app *fiber.App) {
 func main() {
 	// Setup the database
 	repo.ConnectToDB()
-	repo.ConnectToDBTasks()
 	// Create a new engine
 	engine := html.New("./resources/views", ".html")
 

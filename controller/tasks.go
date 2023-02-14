@@ -14,6 +14,7 @@ import (
 // This function will obtain the users tasks and then render them through fiber
 // so that they can be displayed on the frontend
 func DisplayTasks(ctx *fiber.Ctx) error {
+	db := repo.DB.DbConn
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	ID, err := middleware.GetFromRedis(client, key)
@@ -23,14 +24,14 @@ func DisplayTasks(ctx *fiber.Ctx) error {
 			"message": err,
 		})
 	}
-	taskResponse, err := repo.ReturnTasksWithID(ID)
+	taskResponse, err := repo.ReturnTasksWithID(ID, db)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
 			"message": err,
 		})
 	}
-	name, err := repo.ReturnName(ID)
+	name, err := repo.ReturnName(ID, db)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -47,6 +48,7 @@ func DisplayTasks(ctx *fiber.Ctx) error {
 
 // This function will add the task to the database
 func AddTasks(ctx *fiber.Ctx) error {
+	db := repo.DB.DbConn
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	ID, err := middleware.GetFromRedis(client, key)
@@ -67,7 +69,7 @@ func AddTasks(ctx *fiber.Ctx) error {
 		TaskName: tempTask.TaskName,
 		UserID:   ID,
 	}
-	primaryID, err := repo.AddTask(task)
+	primaryID, err := repo.AddTask(task, db)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -83,6 +85,7 @@ func AddTasks(ctx *fiber.Ctx) error {
 
 // This function will delete the tasks from the database
 func DelTask(ctx *fiber.Ctx) error {
+	db := repo.DB.DbConn
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	// We don't need the user ID here, but we still need to verify
@@ -103,7 +106,7 @@ func DelTask(ctx *fiber.Ctx) error {
 		})
 	}
 	// Call the database function to delete the task
-	err = repo.DelTask(ID)
+	err = repo.DelTask(ID, db)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
@@ -118,6 +121,7 @@ func DelTask(ctx *fiber.Ctx) error {
 
 // This function will mark the task as done in the database
 func TaskDone(ctx *fiber.Ctx) error {
+	db := repo.DB.DbConn
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	// We don't need the user ID here, but we still need to verify
@@ -138,7 +142,7 @@ func TaskDone(ctx *fiber.Ctx) error {
 		})
 	}
 	// Call the database function to mark the task as done
-	err = repo.MarkTaskDone(ID)
+	err = repo.MarkTaskDone(ID, db)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
@@ -153,6 +157,7 @@ func TaskDone(ctx *fiber.Ctx) error {
 
 // The function will edit the task by calling the appropraite database function
 func EditTask(ctx *fiber.Ctx) error {
+	db := repo.DB.DbConn
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	// We don't need the user ID here, but we still need to verify
@@ -179,7 +184,7 @@ func EditTask(ctx *fiber.Ctx) error {
 		fmt.Println("Error with parsing credentials")
 	}
 	// Call the database function to mark the task as done
-	err = repo.EditTask(ID, tempTask.TaskName)
+	err = repo.EditTask(ID, tempTask.TaskName, db)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,

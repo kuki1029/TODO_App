@@ -18,13 +18,14 @@ var _ = middleware.Ping(client)
 // so that they can view their tasks.
 func Login(ctx *fiber.Ctx) error {
 	var creds models.UserDTO
+	db := repo.DB.DbConn
 	// First we need to parse the variable ctx to receive the credentials
 	err := ctx.BodyParser(&creds)
 	if err != nil {
 		fmt.Println("Error with parsing credentials")
 	}
 	// Once we have their credentials, we need to check if the user is in the database
-	err = repo.AuthenticateUser(creds)
+	err = repo.AuthenticateUser(creds, db)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -38,7 +39,7 @@ func Login(ctx *fiber.Ctx) error {
 	cookie.Value = uuid.NewString()
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	ctx.Cookie(cookie)
-	ID := repo.ReturnUserID(creds)
+	ID := repo.ReturnUserID(creds, db)
 	redisVal := "email: " + creds.Email + " id: " + fmt.Sprint(ID)
 	// We set it to expire in 24 hours
 	client.Set(cookie.Value, redisVal, 24*time.Hour)
@@ -53,13 +54,14 @@ func Login(ctx *fiber.Ctx) error {
 // the c variable here contains all the required credentials
 func Signup(ctx *fiber.Ctx) error {
 	var creds models.UserDTO
+	db := repo.DB.DbConn
 	// First we need to parse the variable ctx to receive the credentials
 	err := ctx.BodyParser(&creds)
 	if err != nil {
 		fmt.Println("Error with parsing credentials")
 	}
 	// Once we have the required data, we need to make sure the user isn't a duplicate
-	err = repo.AddUser(creds)
+	err = repo.AddUser(creds, db)
 	if err != nil {
 		// In this case, we know the user is a duplicate, so we returen an error message
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

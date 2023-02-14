@@ -184,7 +184,32 @@ function editButton(elem) {
   .then(result => {
     if (result.success) {
       // If deletion in database was successful, we can edit the task name on the frontend
-      elem.parentElement.innerHTML = newTaskName
+      var li = elem.parentElement
+      elem.parentElement.innerHTML = ""
+      span = document.createElement("SPAN");
+      i1 = document.createElement("i");
+      i1.className = "bi bi-trash"
+      span.className = "close";
+      span.appendChild(i1);
+      // Adds the ability to delete the task
+      span.onclick = (function() {
+        delElement(this)
+      })
+      span2 = document.createElement("SPAN");
+      i2 = document.createElement("i");
+      i2.className = "bi bi-pencil-square"
+      span2.className = "edit"
+      span2.appendChild(i2)
+      span2.onclick = (function() {
+        editButton(this)
+      })
+      li.appendChild(span);
+      li.appendChild(span2)
+      // Edit name
+      
+      text = document.createTextNode(newTaskName)
+      li.appendChild(text)
+
     }
     else {
       window.alert("There was an error with editing this task as done. Please try again.")
