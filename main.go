@@ -8,28 +8,28 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html"
 
-	"todo/controller"
-	"todo/repo"
+	"todo/app/controller"
+	"todo/app/repo"
 )
 
 // This function will create all the needed routes for our different pages
-func setupRoutes(app *fiber.App) {
+func setupRoutes(app *fiber.App, uc *controller.UserController, tc *controller.TaskController) {
 	// Signup page for user
-	app.Post("/signup", controller.Signup)
+	app.Post("/signup", uc.Signup)
 	// Login page for user
-	app.Post("/login", controller.Login)
+	app.Post("/login", uc.Login)
 	// Show tasks to user
-	app.Get("/tasks", controller.DisplayTasks)
+	app.Get("/tasks", tc.DisplayTasks)
 	// Add task to database
-	app.Post("/tasks", controller.AddTasks)
+	app.Post("/tasks", tc.AddTasks)
 	// Delete tasks from database
-	app.Delete("/tasks/:id", controller.DelTask)
+	app.Delete("/tasks/:id", tc.DelTask)
 	// Mark a task done given a certain id
-	app.Post("/tasksDone/:id", controller.TaskDone)
+	app.Post("/tasksDone/:id", tc.TaskDone)
 	// Logout
-	app.Post("/logout", controller.Logout)
+	app.Post("/logout", uc.Logout)
 	// Edit task in database
-	app.Post("/tasksEdit/:id", controller.EditTask)
+	app.Post("/tasksEdit/:id", tc.EditTask)
 }
 
 // Stop the Fiber application
@@ -40,6 +40,11 @@ func exit(app *fiber.App) {
 func main() {
 	// Setup the database
 	repo.ConnectToDB()
+	// Setup repo and controller interfaces
+	ur := repo.NewUserRepo(repo.DB.DbConn)
+	uc := controller.NewUserController(*ur)
+	tr := repo.NewTaskRepo(repo.DB.DbConn)
+	tc := controller.NewTaskController(*tr)
 	// Create a new engine
 	engine := html.New("./resources/views", ".html")
 
@@ -56,7 +61,7 @@ func main() {
 		Index: "login.html",
 	})
 
-	setupRoutes(app)
+	setupRoutes(app, uc, tc)
 
 	// Close any connections on interrupt signal
 	c := make(chan os.Signal, 1)

@@ -14,8 +14,8 @@ func Generate(raw string) string {
 }
 
 // Verify compares a hashed password with plaintext password
-func Verify(hash string, raw string) (bool, error) {
-	isSame, err := argon2id.ComparePasswordAndHash(hash, raw)
+func Verify(raw string, hash string) (bool, error) {
+	isSame, err := argon2id.ComparePasswordAndHash(raw, hash)
 	return isSame, err
 
 }

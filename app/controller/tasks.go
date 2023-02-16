@@ -6,15 +6,33 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"todo/middleware"
-	"todo/models"
-	"todo/repo"
+	"todo/app/middleware"
+	"todo/app/models"
 )
+
+// Interface for TaskRepo
+type TaskRepo interface {
+	ReturnTasksWithID(ID uint) ([]models.TaskResponse, error)
+	AddTask(task models.Task) (uint, error)
+	DelTask(ID uint) error
+	MarkTaskDone(ID uint) error
+	EditTask(ID uint, NewName string) error
+	ReturnName(ID uint) (string, error)
+}
+
+// TaskController handles all routes related to tasks
+type TaskController struct {
+	taskRepo TaskRepo
+}
+
+// NewUserController creates a new instance of UserController
+func NewTaskController(tr TaskRepo) *TaskController {
+	return &TaskController{taskRepo: tr}
+}
 
 // This function will obtain the users tasks and then render them through fiber
 // so that they can be displayed on the frontend
-func DisplayTasks(ctx *fiber.Ctx) error {
-	db := repo.DB.DbConn
+func (tc *TaskController) DisplayTasks(ctx *fiber.Ctx) error {
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	ID, err := middleware.GetFromRedis(client, key)
@@ -24,14 +42,14 @@ func DisplayTasks(ctx *fiber.Ctx) error {
 			"message": err,
 		})
 	}
-	taskResponse, err := repo.ReturnTasksWithID(ID, db)
+	taskResponse, err := tc.taskRepo.ReturnTasksWithID(ID)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
 			"message": err,
 		})
 	}
-	name, err := repo.ReturnName(ID, db)
+	name, err := tc.taskRepo.ReturnName(ID)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -47,8 +65,7 @@ func DisplayTasks(ctx *fiber.Ctx) error {
 }
 
 // This function will add the task to the database
-func AddTasks(ctx *fiber.Ctx) error {
-	db := repo.DB.DbConn
+func (tc *TaskController) AddTasks(ctx *fiber.Ctx) error {
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	ID, err := middleware.GetFromRedis(client, key)
@@ -69,7 +86,7 @@ func AddTasks(ctx *fiber.Ctx) error {
 		TaskName: tempTask.TaskName,
 		UserID:   ID,
 	}
-	primaryID, err := repo.AddTask(task, db)
+	primaryID, err := tc.taskRepo.AddTask(task)
 	if err != nil {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -84,8 +101,7 @@ func AddTasks(ctx *fiber.Ctx) error {
 }
 
 // This function will delete the tasks from the database
-func DelTask(ctx *fiber.Ctx) error {
-	db := repo.DB.DbConn
+func (tc *TaskController) DelTask(ctx *fiber.Ctx) error {
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	// We don't need the user ID here, but we still need to verify
@@ -106,7 +122,7 @@ func DelTask(ctx *fiber.Ctx) error {
 		})
 	}
 	// Call the database function to delete the task
-	err = repo.DelTask(ID, db)
+	err = tc.taskRepo.DelTask(ID)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
@@ -120,8 +136,7 @@ func DelTask(ctx *fiber.Ctx) error {
 }
 
 // This function will mark the task as done in the database
-func TaskDone(ctx *fiber.Ctx) error {
-	db := repo.DB.DbConn
+func (tc *TaskController) TaskDone(ctx *fiber.Ctx) error {
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	// We don't need the user ID here, but we still need to verify
@@ -142,7 +157,7 @@ func TaskDone(ctx *fiber.Ctx) error {
 		})
 	}
 	// Call the database function to mark the task as done
-	err = repo.MarkTaskDone(ID, db)
+	err = tc.taskRepo.MarkTaskDone(ID)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
@@ -156,8 +171,7 @@ func TaskDone(ctx *fiber.Ctx) error {
 }
 
 // The function will edit the task by calling the appropraite database function
-func EditTask(ctx *fiber.Ctx) error {
-	db := repo.DB.DbConn
+func (tc *TaskController) EditTask(ctx *fiber.Ctx) error {
 	// Obtain the ID by checking if the cookies sessionKey exists in cache or not
 	key := ctx.Cookies("sessionKey")
 	// We don't need the user ID here, but we still need to verify
@@ -184,7 +198,7 @@ func EditTask(ctx *fiber.Ctx) error {
 		fmt.Println("Error with parsing credentials")
 	}
 	// Call the database function to mark the task as done
-	err = repo.EditTask(ID, tempTask.TaskName, db)
+	err = tc.taskRepo.EditTask(ID, tempTask.TaskName)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
