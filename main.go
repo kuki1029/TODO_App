@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/template/html"
 
 	"todo/app/controller"
+	"todo/app/middleware"
 	"todo/app/repo"
 	"todo/routes"
 )
@@ -23,11 +24,12 @@ func exit(app *fiber.App) {
 func main() {
 	// Setup the database
 	repo.ConnectToDB()
+	redisClient := middleware.NewRedisClient()
 	// Setup repo and controller interfaces
 	ur := repo.NewUserRepo(repo.DB.DbConn)
-	uc := controller.NewUserController(*ur)
+	uc := controller.NewUserController(*ur, *redisClient)
 	tr := repo.NewTaskRepo(repo.DB.DbConn)
-	tc := controller.NewTaskController(*tr)
+	tc := controller.NewTaskController(*tr, *redisClient)
 	// Create a new engine
 	engine := html.New("./resources/views", ".html")
 

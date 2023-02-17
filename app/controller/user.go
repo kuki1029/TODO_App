@@ -6,14 +6,9 @@ import (
 
 	"fmt"
 	"time"
-	"todo/app/middleware"
 	"todo/app/models"
 	"todo/app/utils/password"
 )
-
-// Setup the redis cache.
-var client = middleware.RedisSetUp()
-var _ = middleware.Ping(client)
 
 // Interface for UserRepo
 type UserRepo interface {
@@ -23,14 +18,26 @@ type UserRepo interface {
 	ReturnUserID(userInfo models.UserDTO) uint
 }
 
+// Interface for RedisClient
+type RedisClient interface {
+	Ping() error
+	GetFromRedis(key string) (uint, error)
+	SetInRedis(value string, redisVal string, timeAmt time.Duration)
+	DelInRedis(value string)
+}
+
 // UserController handles all routes related to users
 type UserController struct {
-	userRepo UserRepo
+	userRepo    UserRepo
+	redisClient RedisClient
 }
 
 // NewUserController creates a new instance of UserController
-func NewUserController(ur UserRepo) *UserController {
-	return &UserController{userRepo: ur}
+func NewUserController(ur UserRepo, rc RedisClient) *UserController {
+	return &UserController{
+		userRepo:    ur,
+		redisClient: rc,
+	}
 }
 
 // This function will create cookies for the user and log them in
@@ -54,17 +61,11 @@ func (uc *UserController) Login(ctx *fiber.Ctx) error {
 	userVerified := uc.userRepo.AuthenticateUser(userTemp, &creds)
 	if userVerified {
 		// To be able to identify this user on other pages, we need to create a cookie for their browser
-		cookie := new(fiber.Cookie)
-		cookie.Name = "sessionKey"
-		// We generate a random key to store in the cookie value. Also stored in redis cache
-		cookie.Value = uuid.NewString()
-		cookie.Expires = time.Now().Add(24 * time.Hour)
-		ctx.Cookie(cookie)
-
+		cookie := setCookie(ctx, "sessionKey", uuid.NewString(), 24)
 		ID := uc.userRepo.ReturnUserID(creds)
 		redisVal := "email: " + creds.Email + " id: " + fmt.Sprint(ID)
 		// We set it to expire in 24 hours
-		client.Set(cookie.Value, redisVal, 24*time.Hour)
+		uc.redisClient.SetInRedis(cookie.Value, redisVal, 24*time.Hour)
 		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 			"success": true,
 			"message": "Login successful.",
@@ -116,14 +117,10 @@ func (uc *UserController) Signup(ctx *fiber.Ctx) error {
 // This function logs out the user by replacing the stored cookies
 func (uc *UserController) Logout(ctx *fiber.Ctx) error {
 	// Delete from redis cache
-	client.Del(ctx.Cookies("sessionKey"))
+	uc.redisClient.DelInRedis(ctx.Cookies("sessionKey"))
 	// Make new cookie to replace current cookie
-	cookie := new(fiber.Cookie)
-	cookie.Name = "sessionKey"
-	cookie.Value = ""
 	// This makes it expire. We use -100 so it expires for older versions of IE too
-	cookie.Expires = time.Now().Add(-100 * time.Hour)
-	ctx.Cookie(cookie)
+	setCookie(ctx, "sessionKey", "", -100)
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"message": "Logged out.",
@@ -131,11 +128,12 @@ func (uc *UserController) Logout(ctx *fiber.Ctx) error {
 }
 
 // This function will take in parameters for the cookie and set them to the fiber context
-func setCookie(ctx *fiber.Ctx, name string, value string, timeAmt time.Duration) {
+func setCookie(ctx *fiber.Ctx, name string, value string, timeAmt time.Duration) *fiber.Cookie {
 	cookie := new(fiber.Cookie)
 	cookie.Name = name
 	// We generate a random key to store in the cookie value. Also stored in redis cache
 	cookie.Value = value
 	cookie.Expires = time.Now().Add(timeAmt * time.Hour)
 	ctx.Cookie(cookie)
+	return cookie
 }

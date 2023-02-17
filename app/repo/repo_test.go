@@ -368,7 +368,7 @@ func (s *RepoTestSuite) TestDelTaskSimple() {
 
 // Tests the MarkTaskDone function. This will simply change the isDone field
 // on the task. If the task doesn't exist, it will throw an error but that shouldn't happen
-// as we only call this on existing tasks. This will check the case when the task done exist
+// as we only call this on existing tasks. This will check the case when the task does exist
 func (s *RepoTestSuite) TestMarkTaskDone() {
 	// Pass the mock db as the new db
 	repo := NewTaskRepo(s.db)
@@ -408,27 +408,87 @@ func (s *RepoTestSuite) TestMarkTaskDoneError() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
-// Tests the EditTask function. This will simply change the isDone field
+// Tests the EditTask function. This will simply change the task_name field
 // on the task. If the task doesn't exist, it will throw an error but that shouldn't happen
-// as we only call this on existing tasks. This will check the case when the task done exist
+// as we only call this on existing tasks. This will check the case when the task does exist
 func (s *RepoTestSuite) TestEditTask() {
 	// Pass the mock db as the new db
 	repo := NewTaskRepo(s.db)
 	taskID_expected := uint(6)
-	isDone := true
+	name := "New Name"
 	// Set the expected query from the func
 	s.mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "tasks" WHERE ID = $1 AND "tasks"."deleted_at" IS NULL`)).
 		WithArgs(taskID_expected).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(taskID_expected))
 	// Here we have the expected raw sql that is done by gorm
 	s.mock.ExpectBegin()
-	s.mock.ExpectExec(regexp.QuoteMeta(`UPDATE "tasks" SET "is_done"=$1,"updated_at"=$2 WHERE "tasks"."deleted_at" IS NULL AND "id" = $3`)).
-		WithArgs(isDone, anyTime{}, taskID_expected).
+	s.mock.ExpectExec(regexp.QuoteMeta(`UPDATE "tasks" SET "task_name"=$1,"updated_at"=$2 WHERE "tasks"."deleted_at" IS NULL AND "id" = $3`)).
+		WithArgs(name, anyTime{}, taskID_expected).
 		WillReturnResult(sqlmock.NewResult(int64(taskID_expected), 1))
 	s.mock.ExpectCommit()
 	// Call the actual function that is being tested.
-	err := repo.MarkTaskDone(taskID_expected)
+	err := repo.EditTask(taskID_expected, name)
 	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+// Tests the EditTask function. This will simply change the task_name field
+// on the task. If the task doesn't exist, it will throw an error but that shouldn't happen
+// as we only call this on existing tasks. This will check the case when the task doesn't exist
+func (s *RepoTestSuite) TestEditTaskError() {
+	// Pass the mock db as the new db
+	repo := NewTaskRepo(s.db)
+	taskID_expected := uint(6)
+	name := "New Name"
+	// Set the expected query from the func
+	s.mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "tasks" WHERE ID = $1 AND "tasks"."deleted_at" IS NULL`)).
+		WithArgs(taskID_expected).
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(taskID_expected)).
+		WillReturnError(gorm.ErrRecordNotFound)
+	// Call the actual function that is being tested.
+	err := repo.EditTask(taskID_expected, name)
+	s.Error(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+// Tests the ReturnName function. This will return the name of the user.
+// This case is for when the user exists and the function doesn't throw an error
+func (s *RepoTestSuite) TestReturnName() {
+	// Pass the mock db as the new db
+	repo := NewTaskRepo(s.db)
+	userID := uint(1)
+	expectedName := "User"
+	// As we also want to return the email and pass, we need to create custom Newrows for that
+	rows := sqlmock.NewRows([]string{"id", "name"}).FromCSVString("1, User")
+	// Set the expected query from the func
+	s.mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE ID = $1 AND "users"."deleted_at" IS NULL`)).
+		WithArgs(userID).
+		WillReturnRows(rows)
+	// Call the actual function that is being tested.
+	name, err := repo.ReturnName(userID)
+	s.NoError(err)
+	s.Equal(expectedName, name)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+// Tests the ReturnName function. This will return the name of the user.
+// This case is for when the user doesn't exist so the function returns an error and blank name
+func (s *RepoTestSuite) TestReturnNameError() {
+	// Pass the mock db as the new db
+	repo := NewTaskRepo(s.db)
+	userID := uint(1)
+	expectedName := ""
+	// As we also want to return the email and pass, we need to create custom Newrows for that
+	rows := sqlmock.NewRows([]string{"id"}).FromCSVString("1")
+	// Set the expected query from the func
+	s.mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE ID = $1 AND "users"."deleted_at" IS NULL`)).
+		WithArgs(userID).
+		WillReturnRows(rows).
+		WillReturnError(gorm.ErrRecordNotFound)
+	// Call the actual function that is being tested.
+	name, err := repo.ReturnName(userID)
+	s.Error(err)
+	s.Equal(expectedName, name)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
