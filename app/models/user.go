@@ -9,14 +9,14 @@ type User struct {
 	gorm.Model
 	Name     string `json:"name`
 	Email    string `json:"email`
-	Password string `json:"password"`
+	Password string `json:"password" gorm:"Index;not null"`
 	Tasks    []Task `json:"tasks"`
 }
 
 type UserDTO struct {
 	Name     string `json:"name`
 	Email    string `json:"email`
-	Password string `json:"password"`
+	Password string `json:"password" gorm:"Index;not null"`
 }
 
 type UserResponse struct {

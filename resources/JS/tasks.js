@@ -70,36 +70,39 @@ function newElement() {
 // This deletes the task in the backend by calling the appropriate function. Once deleted, the user cannot view the task.
 // It also removes it from the frontend
 function delElement(elem) {
-  var div = elem.parentElement;
-  div.style.display = "none";
-  // We store the 
-  var id = elem.parentElement.id
-  // Add the task to database through the fetch api
-  let fetchData = {
-    method: 'DELETE',
-    headers: new Headers({
-      'Content-Type': 'application/json; charset=UTF-8'
+  const response = confirm("Are you sure you want to do that?");
+  if (response) {
+    var div = elem.parentElement;
+    div.style.display = "none";
+    // We store the 
+    var id = elem.parentElement.id
+    // Add the task to database through the fetch api
+    let fetchData = {
+      method: 'DELETE',
+      headers: new Headers({
+        'Content-Type': 'application/json; charset=UTF-8'
+      })
+    }
+    // Now we can fetch the data using the above variable.
+    // Normally, fetch defaults to GET but we redefined it above
+    fetch('/tasks/' + id, fetchData)
+    // We simple convert it back to JSON
+    .then(resposne => {
+      return resposne.json();
+    })
+    // Using the converted value, we can check if the controller function
+    // was successful or not.
+    .then(result => {
+      if (result.success) {
+        // If deletion in database was successful, we can remove element from frontend
+        var LI = document.getElementById(id)
+        LI.parentNode.removeChild(LI);
+      }
+      else {
+        window.alert("There was an error with deleting the task. Please try again.")
+      }
     })
   }
-  // Now we can fetch the data using the above variable.
-  // Normally, fetch defaults to GET but we redefined it above
-  fetch('/tasks/' + id, fetchData)
-  // We simple convert it back to JSON
-  .then(resposne => {
-    return resposne.json();
-  })
-  // Using the converted value, we can check if the controller function
-  // was successful or not.
-  .then(result => {
-    if (result.success) {
-      // If deletion in database was successful, we can remove element from frontend
-      var LI = document.getElementById(id)
-      LI.parentNode.removeChild(LI);
-    }
-    else {
-      window.alert("There was an error with deleting the task. Please try again.")
-    }
-  })
 }
 
 // This function will add the checked class to the list element when clicked.

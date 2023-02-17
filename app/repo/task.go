@@ -31,7 +31,6 @@ func (tr TaskRepo) ReturnTasksWithID(ID uint) ([]models.TaskResponse, error) {
 	// If no error, we can copy the tasks into the resTasks. The copier function handles this for us
 	copier.Copy(&resTasks, &tempTasks)
 	return resTasks, nil
-
 }
 
 // This function will add the task to the database by updating the task array
@@ -61,9 +60,9 @@ func (tr TaskRepo) MarkTaskDone(ID uint) error {
 	}
 	// Change the boolean to inverse as user might need to mark a task as not done
 	tempTasks.IsDone = !tempTasks.IsDone
-	err = tr.db.Save(&tempTasks).Error
+	//err = tr.db.Debug().Update(&tempTasks).Error
+	err = tr.db.Model(&tempTasks).Update("is_done", tempTasks.IsDone).Error
 	return err
-
 }
 
 // This function will edit the task name
@@ -74,7 +73,7 @@ func (tr TaskRepo) EditTask(ID uint, NewName string) error {
 		return err
 	}
 	tempTasks.TaskName = NewName
-	err = tr.db.Save(&tempTasks).Error
+	err = tr.db.Model(&tempTasks).Update("task_name", NewName).Error
 	return err
 }
 

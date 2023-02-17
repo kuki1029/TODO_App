@@ -10,27 +10,10 @@ import (
 
 	"todo/app/controller"
 	"todo/app/repo"
+	"todo/routes"
 )
 
 // This function will create all the needed routes for our different pages
-func setupRoutes(app *fiber.App, uc *controller.UserController, tc *controller.TaskController) {
-	// Signup page for user
-	app.Post("/signup", uc.Signup)
-	// Login page for user
-	app.Post("/login", uc.Login)
-	// Show tasks to user
-	app.Get("/tasks", tc.DisplayTasks)
-	// Add task to database
-	app.Post("/tasks", tc.AddTasks)
-	// Delete tasks from database
-	app.Delete("/tasks/:id", tc.DelTask)
-	// Mark a task done given a certain id
-	app.Post("/tasksDone/:id", tc.TaskDone)
-	// Logout
-	app.Post("/logout", uc.Logout)
-	// Edit task in database
-	app.Post("/tasksEdit/:id", tc.EditTask)
-}
 
 // Stop the Fiber application
 func exit(app *fiber.App) {
@@ -61,7 +44,8 @@ func main() {
 		Index: "login.html",
 	})
 
-	setupRoutes(app, uc, tc)
+	routes.SetupTaskRoutes(app, tc)
+	routes.SetupUserRoutes(app, uc)
 
 	// Close any connections on interrupt signal
 	c := make(chan os.Signal, 1)
