@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/json"
+	"net/http"
 	"testing"
 	"time"
 	"todo/app/models"
@@ -81,6 +83,8 @@ func (suite *UserControllerTestSuite) SetupTest() {
 	}
 }
 
+// This tests the login function with basic functionality
+// Tests the case when everything is okay and the function returns no errors
 func (suite *UserControllerTestSuite) TestLogin() {
 	user1 := models.UserDTO{
 		Name:     "",
@@ -89,12 +93,16 @@ func (suite *UserControllerTestSuite) TestLogin() {
 	}
 	// Set up expected behavior for the mock repository
 	userTemp := new(models.UserDTO)
+	// The .Run is used as we modify a pointer in the UserExists function.
+	// To mock this, we need to use .RUn
 	suite.mockRepo.On("UserExists", userTemp, "test@gmail.com").Return(nil).Run(func(args mock.Arguments) {
 		arg := args.Get(0).(*models.UserDTO)
 		arg.Name = "Test"
 		arg.Email = "test@gmail.com"
 		arg.Password = "hashedPassword"
 	})
+	// Instead of actually hashing the passwords, we just type it in ourselves as the hashedPassword
+	// to reduce any external dependencies
 	userTempReturned := models.UserDTO{
 		Name:     "Test",
 		Email:    "test@gmail.com",
@@ -112,11 +120,21 @@ func (suite *UserControllerTestSuite) TestLogin() {
 	c.Request().Header.SetMethod("POST")
 	c.Request().Header.Set("Content-Type", "application/json")
 	c.Context().Request.SetBodyString(`{"email":"test@gmail.com","password":"password"}`)
-	//data := {email:"test@gmail.com",password:"password",}
-	//c.Request().Request.BodyParser(`{"email":"test@gmail.com","password":"password}`)
 	// Call the Login function
 	err := suite.controller.Login(c)
+	// Make sure everything went okay
 	suite.NoError(err)
+	suite.Equal(http.StatusOK, c.Response().StatusCode())
+	// Assert that the CreateTeam method of the mock repository was called with the correct arguments
+	suite.mockRepo.AssertExpectations(suite.T())
+	suite.mockRedis.AssertExpectations(suite.T())
+	// Parse the JSON response
+	var response map[string]interface{}
+	err = json.Unmarshal(
+		c.Response().Body(), &response)
+	suite.NoError(err)
+	suite.Equal(true, response["success"])
+
 }
 
 func TestUserControllerTestSuite(t *testing.T) {
